@@ -290,6 +290,16 @@ def get_disabled_skill_names(platform: str | None = None) -> Set[str]:
     return disabled - ESSENTIAL_SKILLS
 
 
+def get_compact_skill_categories() -> Set[str]:
+    """Skill categories the user configured to demote to names-only in the system
+    prompt index (``skills.compact_categories``). Names stay visible; descriptions
+    are omitted to cut context bloat. Mirrors ``get_disabled_skill_names``."""
+    skills_cfg = _skills_cfg()
+    if skills_cfg is None:
+        return set()
+    return _normalize_string_set(skills_cfg.get("compact_categories"))
+
+
 def parse_config_string_list(value) -> List[str]:
     """Normalize a config value that may hold a JSON-array string into a list.
     ``hermes config set`` stores lists as quoted JSON/Python-literal strings;

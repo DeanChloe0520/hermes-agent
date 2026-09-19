@@ -305,11 +305,17 @@ def _skills_prompt(agent: Any) -> str:
     avail_toolsets = {model_tools.get_toolset_for_tool(tool_name) for tool_name in agent.valid_tool_names} - {None, ""}
     try:
         from agent.coding_context import coding_compact_skill_categories
-        _compact_cats = coding_compact_skill_categories(platform=agent.platform, cwd=resolve_context_cwd())
+        _compact_cats = set(coding_compact_skill_categories(platform=agent.platform, cwd=resolve_context_cwd()))
     except Exception:
-        _compact_cats = frozenset()
+        _compact_cats = set()
+    # User-configured ``skills.compact_categories`` also demote to names-only (cut context bloat).
+    try:
+        from agent.skill_utils import get_compact_skill_categories
+        _compact_cats |= get_compact_skill_categories()
+    except Exception:
+        pass
     return _pb.build_skills_system_prompt(available_tools=agent.valid_tool_names, available_toolsets=avail_toolsets,
-                                         compact_categories=_compact_cats or None, skills_dir_override=_agent_skills_dir(agent))
+                                         compact_categories=frozenset(_compact_cats) or None, skills_dir_override=_agent_skills_dir(agent))
 
 
 def _bot_mode_parts(agent: Any) -> List[str]:
