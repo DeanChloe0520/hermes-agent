@@ -428,6 +428,16 @@ override-dependencies = [
   # requests with RSA and AES, and that API did not break in 49 or 50.
   # Remove this line when alibabacloud-tea-openapi lifts the cap.
   "cryptography>=50,<51",
+  # typing-extensions: preventive floor at 4.16.0, the first release that ships
+  # the PEP 661 lowercase ``sentinel`` name (4.14.0 and 4.15.0 export
+  # ``Sentinel`` but not ``sentinel`` — verified by importing each version on
+  # py3.11; there is no 4.15.x between them). Dependents declare loose bounds
+  # (mcp >=4.13.0, pydantic/pydantic_core >=4.14.1), so the resolver can settle on
+  # 4.15.0, where an importer of ``sentinel`` dies with "cannot import name
+  # 'sentinel' from 'typing_extensions'". No package in the current lockfile
+  # imports it today, so this is a floor for future/optional importers rather
+  # than a reproduced in-tree failure.
+  "typing-extensions>=4.16.0",
 ]
 exclude-newer = "14 days"
 # h2: temporary exclude-newer exception for the CVE-2026-71554 (GHSA-6hr6-w5qg-qmwg,
